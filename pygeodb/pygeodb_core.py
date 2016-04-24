@@ -28,7 +28,6 @@ distanz_liste = sort(locations, referenz)
 """
 
 from __future__ import absolute_import
-
 import math
 from pygeodb.plzdata import geodata
 
@@ -44,12 +43,17 @@ class PLZ:
 
     def __sub__(self, other):
         """Calculates the distance between two geolocations"""
+        # per http://stackoverflow.com/questions/15736995/
         fLat, fLon = math.radians(self.latitude), math.radians(self.longitude)
         tLat, tLon = math.radians(other.latitude), math.radians(other.longitude)
-        distance = math.acos(
-            math.sin(tLat) * math.sin(fLat)
-            + math.cos(tLat) * math.cos(fLat) * math.cos(tLon - fLon)) * 6380000
-        return int(distance)
+
+        # haversine formula
+        dlon = tLon - fLon
+        dlat = tLat - fLat
+        a = math.sin(dlat/2)**2 + math.cos(tLat) * math.cos(fLat) * math.sin(dlon/2)**2
+        c = 2 * math.asin(math.sqrt(a))
+        m = 6367 * c * 1000
+        return int(m)
 
 
 def _obj2plz(obj):
